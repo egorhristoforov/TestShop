@@ -47,15 +47,6 @@ class CatalogTableViewCell: UITableViewCell {
         return title
     }()
     
-    private let productCategory: UILabel = {
-        let category = UILabel()
-        category.font = UIFont.systemFont(ofSize: 12, weight: .regular)
-        category.textColor = #colorLiteral(red: 0.9999018312, green: 1, blue: 0.9998798966, alpha: 0.66)
-        category.translatesAutoresizingMaskIntoConstraints = false
-        
-        return category
-    }()
-    
     private let productDescription: UILabel = {
         let description = UILabel()
         description.font = UIFont.systemFont(ofSize: 14, weight: .regular)
@@ -110,6 +101,16 @@ class CatalogTableViewCell: UITableViewCell {
         for (index, option) in options.enumerated() {
             let switchView = UISwitch()
             switchView.tag = index
+            switchView.rx
+                .isOn
+                .throttle(RxTimeInterval.milliseconds(500), scheduler: MainScheduler.instance)
+                .distinctUntilChanged()
+                .subscribe { (value) in
+                    guard let value = value.element else { return }
+                    self.addOptionToCartToggle(value: value, index: switchView.tag)
+                }
+                .disposed(by: disposeBag)
+            
             switches.append(switchView)
             
             if Cart.shared().isOptionAdded(product: product, option: option) {
@@ -152,21 +153,16 @@ class CatalogTableViewCell: UITableViewCell {
         isAddedToCart = Cart.shared().isContains(product: product)
         productTitle.text = product.title
         productPrice.text = "\(product.price)₽"
-        productCategory.text = product.category.getStringValue()
         productDescription.text = product.description
         
         productOptions = product.options
         
         setProductOptions(with: productOptions)
-        
-        for switchView in switches {
-            switchView.addTarget(self, action: #selector(addOptionToCartToggle(sender:)), for: .valueChanged)
-        }
 
         fetchImage(url_img: product.imageURL, for: productImage)
     }
     
-    @objc func addToCartButtonTapped() {
+    func addToCartButtonTapped() {
         if isAddedToCart {
             Cart.shared().removeProductFromCart(product: product)
             for switchView in switches {
@@ -179,9 +175,8 @@ class CatalogTableViewCell: UITableViewCell {
         isAddedToCart = !isAddedToCart
     }
     
-    @objc func addOptionToCartToggle(sender: UISwitch) {
-        let index = sender.tag
-        if sender.isOn {
+    func addOptionToCartToggle(value: Bool, index: Int) {
+        if value {
             Cart.shared().addExtraOption(for: product, option: productOptions[index])
             if !isAddedToCart {
                 isAddedToCart = true
@@ -249,17 +244,17 @@ class CatalogTableViewCell: UITableViewCell {
         }
     }
     
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        productOptions = []
-    }
-    
-    
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = #colorLiteral(red: 0.4949728251, green: 0.3844715953, blue: 1, alpha: 1)
-        addToCartButton.addTarget(self, action: #selector(addToCartButtonTapped), for: .touchUpInside)
+        addToCartButton.rx
+            .tap
+            .asObservable()
+            .throttle(RxTimeInterval.milliseconds(500), scheduler: MainScheduler.instance)
+            .subscribe { (_) in
+                self.addToCartButtonTapped()
+            }
+            .disposed(by: disposeBag)
         setupConstraints()
     }
     
