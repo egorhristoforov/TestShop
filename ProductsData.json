@@ -1,0 +1,90 @@
+{
+    "products": [
+        {
+            "id": 0,
+            "options": [
+                {
+                    "type": "extraSauce",
+                    "price": 10
+                }
+            ],
+            "imageURL": "https://www.thespruceeats.com/thmb/8SyyPw7aCSce8XFeXvDtA9_xcAc=/960x0/filters:no_upscale():max_bytes(150000):strip_icc()/183341110-56a541b93df78cf772875a55.jpg",
+            "title": "Роллы с курицей",
+            "price": 299,
+            "description": "Вкусные. Горячие. Роллы",
+            "category": "sushi"
+        },
+        {
+            "id": 1,
+            "options": [],
+            "imageURL": "https://i.pinimg.com/originals/07/e5/0f/07e50f0b99276f62c13b6df25a765d0c.jpg",
+            "title": "Американо",
+            "price": 100,
+            "description": "Вкусный горячий кофе. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis mi mi, euismod ut justo nec, sodales viverra sapien. Nunc nec eros elit. Sed eleifend ultricies urna, euismod interdum odio suscipit quis. In et mollis eros. Nam sed placerat ligula, in dictum neque. Duis lacinia, lectus non tincidunt gravida, purus velit consequat mauris, maximus aliquet quam magna mattis dui. Sed euismod, libero a fringilla suscipit, magna enim lacinia tellus, id sollicitudin ligula eros eget ex. Praesent nec convallis tortor.",
+            "category": "drinks"
+        },
+        {
+            "id": 2,
+            "options": [
+                {
+                    "type": "extraSauce",
+                    "price": 10
+                },
+                {
+                    "type": "extraCheese",
+                    "price": 20
+                }
+            ],
+            "imageURL": "https://www.tokyo-city.ru/goods/KEV_4094_800x520.jpg",
+            "title": "Пицца с длинным названием, которое я не придумал еще",
+            "price": 550,
+            "description": "Вкусный горячий кофе. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis mi mi, euismod ut justo nec, sodales viverra sapien. Nunc nec eros elit. Sed eleifend ultricies urna, euismod interdum odio suscipit quis. In et mollis eros. Nam sed placerat ligula, in dictum neque. Duis lacinia, lectus non tincidunt gravida, purus velit consequat mauris, maximus aliquet quam magna mattis dui. Sed euismod, libero a fringilla suscipit, magna enim lacinia tellus, id sollicitudin ligula eros eget ex. Praesent nec convallis tortor.",
+            "category": "pizza"
+        },
+        {
+            "id": 3,
+            "options": [
+                {
+                    "type": "extraSauce",
+                    "price": 10
+                },
+                {
+                    "type": "extraOnions",
+                    "price": 12
+                }
+            ],
+            "imageURL": "https://www.happyfoodstube.com/wp-content/uploads/2016/03/homemade-sushi-image.jpg",
+            "title": "Суши с рыбой",
+            "price": 305,
+            "description": "Вкусная свежая рыба, ммммм...",
+            "category": "sushi"
+        },
+        {
+            "id": 4,
+            "options": [],
+            "imageURL": "https://ichef.bbci.co.uk/news/660/cpsprodpb/13718/production/_97204697_gettyimages-99392828.jpg",
+            "title": "Черный чай",
+            "price": 50,
+            "description": "Вкус индийских гор... индийского чая",
+            "category": "drinks"
+        },
+        {
+            "id": 5,
+            "options": [],
+            "imageURL": "https://www.delonghi.com/Global/recipes/multifry/pizza_fresca.jpg",
+            "title": "Маргарита",
+            "price": 480,
+            "description": "Вкуснейшая классическая пицца, маммамия",
+            "category": "pizza"
+        },
+        {
+            "id": 6,
+            "options": [],
+            "imageURL": "https://s11284.pcdn.co/wp-content/uploads/2019/09/coca-cola-bottles-700x375.jpg",
+            "title": "Coca-cola",
+            "price": 60,
+            "description": "Бодрящий газированный напиток",
+            "category": "drinks"
+        }
+    ]
+}
