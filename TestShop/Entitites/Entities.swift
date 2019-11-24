@@ -11,7 +11,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-enum Options: String, Decodable {
+enum OptionType: String, Decodable {
     case extraSauce
     case extraCheese
     case extraOnions
@@ -31,7 +31,7 @@ enum Options: String, Decodable {
     }
 }
 
-enum Categories: String, Decodable {
+enum ProductCategory: String, Decodable {
     case sushi
     case pizza
     case drinks
@@ -47,6 +47,10 @@ enum Categories: String, Decodable {
         }
     }
     
+    /**
+     Метод для получения изображения категории ( для таббара )
+     */
+    
     func getImage() -> UIImage? {
         switch self {
         case .drinks:
@@ -60,7 +64,7 @@ enum Categories: String, Decodable {
 }
 
 struct Option: Decodable {
-    let type: Options
+    let type: OptionType
     let price: Int
 }
 
@@ -71,7 +75,7 @@ struct Product: Decodable {
     let title: String
     let price: Int
     let description: String
-    let category: Categories
+    let category: ProductCategory
 }
 
 struct ResponseProducts: Decodable {
@@ -85,7 +89,7 @@ class CartProduct {
     var selectedTitle: String
     var selectedPrice: Int
     var selectedDescription: String
-    var selectedCategory: Categories
+    var selectedCategory: ProductCategory
     
     init(product: Product) {
         selectedId = product.id

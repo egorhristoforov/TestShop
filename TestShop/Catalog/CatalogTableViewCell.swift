@@ -95,6 +95,10 @@ class CatalogTableViewCell: UITableViewCell {
         return stackView
     }()
     
+    /**
+     Добавляет Свитчи и лейблы, соответствующие опциям, в allProductOptions
+     */
+    
     func setProductOptions(with options: [Option]) {
         
         for subview in allProductOptions.arrangedSubviews {

@@ -35,7 +35,7 @@ class CatalogInteractor: CatalogInteractorProtocol {
     var pizzaProducts: [Product] = []
     var drinksProducts: [Product] = []
     
-    private var availableCategories: [Categories] = []
+    private var availableCategories: [ProductCategory] = []
     
     // MARK: - CatalogInteractorProtocol methods
     

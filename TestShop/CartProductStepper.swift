@@ -8,6 +8,10 @@
 
 import UIKit
 
+/**
+ Кастомный UIStepper
+ */
+
 class CartProductStepper: UIView {
     
     private let decreaseButton: UIButton = {
@@ -42,6 +46,10 @@ class CartProductStepper: UIView {
         return label
     }()
     
+    /**
+     Minimum value of stepper
+     */
+    
     var minimumValue: Int = 0 {
         didSet {
             if value < minimumValue {
@@ -49,6 +57,11 @@ class CartProductStepper: UIView {
             }
         }
     }
+    
+    /**
+     Maximum value of stepper
+     */
+    
     var maximumValue: Int = -1 {
         didSet {
             if value > maximumValue {
@@ -62,7 +75,9 @@ class CartProductStepper: UIView {
             valueLabel.text = "\(value)"
         }
     }
-    
+    /**
+     return stepper value
+     */
     var value: Int {
         get {
             return stepperValue

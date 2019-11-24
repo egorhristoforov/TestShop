@@ -21,25 +21,11 @@ class CatalogPresenter: CatalogPresenterProtocol {
     
     // MARK: - CatalogPresenterProtocol methods
     
+    // MARK: - From view
+    
     func configureView() {
         view.setupView()
         interactor.getProducts()
-    }
-    
-    func updateTableViewData(with tabs: [Categories]) {
-        view.reloadTableViewData(with: tabs)
-    }
-    
-    func navigationRightItemTapped() {
-        router.goToCartVC()
-    }
-    
-    func tabbarDidSelectItem(index: Int) {
-        interactor.tabbarDidSelectItem(index: index)
-    }
-    
-    func scrollTableViewTo(indexPath: IndexPath) {
-        view.scrollTo(indexPath: indexPath)
     }
     
     func productsCountFor(section: Int) -> Int {
@@ -52,5 +38,23 @@ class CatalogPresenter: CatalogPresenterProtocol {
     
     func productForIndexPath(indexPath: IndexPath) -> Product {
         return interactor.productForIndexPath(indexPath: indexPath)
+    }
+    
+    func navigationRightItemTapped() {
+        router.goToCartVC()
+    }
+    
+    func tabbarDidSelectItem(index: Int) {
+        interactor.tabbarDidSelectItem(index: index)
+    }
+    
+    //MARK: - From interactor
+    
+    func scrollTableViewTo(indexPath: IndexPath) {
+        view.scrollTo(indexPath: indexPath)
+    }
+    
+    func updateTableViewData(with tabs: [ProductCategory]) {
+        view.reloadTableViewData(with: tabs)
     }
 }

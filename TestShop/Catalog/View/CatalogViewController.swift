@@ -89,7 +89,11 @@ class CatalogViewController: UIViewController {
         navigationController?.navigationBar.tintColor = .white
     }
     
-    func updateTabbar(with tabs: [Categories]) {
+    /**
+     Устанавливаем в таббаре не пустые категории товаров
+     */
+    
+    func updateTabbar(with tabs: [ProductCategory]) {
         tabBar.items = []
         for (index, tab) in tabs.enumerated() {
             tabBar.items?.append(UITabBarItem(title: tab.getStringValue(), image: tab.getImage(), tag: index))
@@ -114,19 +118,35 @@ extension CatalogViewController: CatalogViewProtocol {
         setupNavigationBar()
         setupTableViewAndTabBar()
         
+        /**
+         Обновляем текст корзины в навигации, при изменении стоимости товаров в корзине
+         */
+        
         Cart.shared().summaryPrice.subscribe(onNext: { (_) in
             self.navigationRightItem.title = Cart.shared().getStringValue()
         }).disposed(by: disposeBag)
     }
     
-    func reloadTableViewData(with tabs: [Categories]) {
+    /**
+    Обновляем список товаров и таббар
+    */
+    
+    func reloadTableViewData(with tabs: [ProductCategory]) {
         updateTabbar(with: tabs)
         tableView.reloadData()
     }
     
+    /**
+    Скролл таблицы до нужной секции
+    */
+    
     func scrollTo(indexPath: IndexPath) {
         tableView.scrollToRow(at: indexPath, at: .top, animated: true)
     }
+    
+    /**
+    Переход к корзине
+    */
     
     @objc func navigationRightItemTapped() {
         presenter.navigationRightItemTapped()
@@ -156,6 +176,10 @@ extension CatalogViewController: UITableViewDelegate, UITableViewDataSource {
 // MARK: - Tableview scroll
 
 extension CatalogViewController: UIScrollViewDelegate {
+    /**
+    Обновляем таббар при скролле по каталогу
+    */
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard let paths = tableView.indexPathsForVisibleRows else { return }
         guard paths.count > 0 else { return }
@@ -167,6 +191,10 @@ extension CatalogViewController: UIScrollViewDelegate {
 // MARK: - Tabbar select item
 
 extension CatalogViewController: UITabBarDelegate {
+    /**
+    Нажали на элемент в таббаре
+    */
+    
     func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
         let index = item.tag
         presenter.tabbarDidSelectItem(index: index)

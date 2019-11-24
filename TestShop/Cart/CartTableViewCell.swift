@@ -63,6 +63,9 @@ class CartTableViewCell: UITableViewCell {
         productTitle.text = product.selectedTitle
         
         var summaryPrice = product.selectedPrice
+        /**
+        Формирование текст для выбранных опций
+         */
         var allOptions = ""
         if let option = product.selectedOptions.first {
             allOptions = "- \(option.type.getStringValue())"

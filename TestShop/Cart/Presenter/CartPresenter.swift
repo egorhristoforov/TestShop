@@ -18,13 +18,11 @@ class CartPresenter: CartPresenterProtocol {
     
     // MARK: - CartPresenterProtocol methods
     
+    // MARK: - From view
+    
     func configureView() {
         view.setupView()
         interactor.getCartProducts()
-    }
-    
-    func updateTableViewData() {
-        view.reloadTableViewData()
     }
     
     func productsCountFor(section: Int) -> Int {
@@ -41,5 +39,11 @@ class CartPresenter: CartPresenterProtocol {
     
     func removeFromCartProduct(indexPath: IndexPath) {
         interactor.removeFromCartProduct(indexPath: indexPath)
+    }
+    
+    // MARK: - From interactor
+    
+    func updateTableViewData() {
+        view.reloadTableViewData()
     }
 }

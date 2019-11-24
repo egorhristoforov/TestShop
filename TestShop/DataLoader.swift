@@ -13,6 +13,9 @@ let SERVER_URL = "https://server.url/api/"
 let REQUEST_PRODUCTS = "get_products_endpoint/"
 
 class DataLoader {
+    /**
+     Метод для получения данных с сервера ( закомментировано )
+     */
     static func downloadProducts(completion:@escaping ((_ result: ResponseProducts) -> Void)) {
         /**
          * Получение данных из ProductsData.json
@@ -38,7 +41,7 @@ class DataLoader {
         }
         task.resume()
         
-        /* Получение товаров с сервера
+        /* Получение данных с сервера
         let headers = ["Content-Type": "application/json"]
         Alamofire.request(SERVER_URL + REQUEST_PRODUCTS,
                           method: .post,
