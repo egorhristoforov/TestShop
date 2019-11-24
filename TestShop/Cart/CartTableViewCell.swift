@@ -7,10 +7,12 @@
 //
 
 import UIKit
+import RxSwift
 
 class CartTableViewCell: UITableViewCell {
     
     private var product: CartProduct!
+    private let disposeBag = DisposeBag()
     
     private let cellBackroundView: UIView = {
         let view = UIView()
@@ -78,8 +80,11 @@ class CartTableViewCell: UITableViewCell {
             }
         }
         productStepper.value = product.portionsCount.value
-        productPrice.text = "\(product.summaryProductPrice.value)₽"
         productOptionsLabel.text = allOptions
+        
+        product.summaryProductPrice.subscribe(onNext: { (price) in
+            self.productPrice.text = "\(price)₽"
+            }).disposed(by: disposeBag)
     }
     
     func setupConstraints() {
@@ -122,7 +127,6 @@ class CartTableViewCell: UITableViewCell {
         setupConstraints()
         productStepper.addHandler {
             self.product.portionsCount.accept(self.productStepper.value)
-            self.productPrice.text = "\(self.product.summaryProductPrice.value)₽"
         }
     }
     
