@@ -56,11 +56,17 @@ class CartViewController: UIViewController {
         tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         tableView.bottomAnchor.constraint(equalTo: orderButton.topAnchor, constant: -10).isActive = true
         
+        var bottomInset = CGFloat(0)
+        if #available(iOS 11.0, *) {
+            bottomInset = UIApplication.shared.keyWindow?.safeAreaInsets.bottom ?? 0
+            
+        }
+        
         orderButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         orderButton.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 10).isActive = true
         orderButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
         orderButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
-        orderButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
+        orderButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20 - bottomInset).isActive = true
     }
 
 }
