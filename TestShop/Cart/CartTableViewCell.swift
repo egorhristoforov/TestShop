@@ -120,7 +120,7 @@ class CartTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = #colorLiteral(red: 0.4949728251, green: 0.3844715953, blue: 1, alpha: 1)
         setupConstraints()
-        productStepper.addHandler { action in
+        productStepper.addHandler {
             self.product.portionsCount = self.productStepper.value
             self.productPrice.text = "\(self.product.priceWithOptions * self.product.portionsCount)₽"
         }

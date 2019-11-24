@@ -8,11 +8,6 @@
 
 import UIKit
 
-enum EventType {
-    case increase
-    case decrease
-}
-
 /**
  Кастомный UIStepper
  */
@@ -75,15 +70,23 @@ class CartProductStepper: UIView {
         }
     }
     
-    private var handler: (_:EventType) -> Void = {event in }
+    private var handler: () -> Void = {  }
     
     private var stepperValue: Int = 0 {
         didSet {
             valueLabel.text = "\(value)"
-            if stepperValue > oldValue {
-                handler(.increase)
-            } else if stepperValue < oldValue {
-                handler(.decrease)
+            handler()
+            
+            if stepperValue == maximumValue {
+                increaseButton.backgroundColor = UIColor.white.withAlphaComponent(0.5)
+            } else {
+                increaseButton.backgroundColor = .white
+            }
+            
+            if stepperValue == minimumValue {
+                decreaseButton.backgroundColor = UIColor.white.withAlphaComponent(0.5)
+            } else {
+                decreaseButton.backgroundColor = .white
             }
         }
     }
@@ -109,7 +112,7 @@ class CartProductStepper: UIView {
         stepperValue += 1
     }
     
-    func addHandler(handler: @escaping (_ event: EventType) -> Void) {
+    func addHandler(handler: @escaping () -> Void) {
         self.handler = handler
     }
     
