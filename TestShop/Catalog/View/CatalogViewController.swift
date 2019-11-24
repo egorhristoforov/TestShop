@@ -47,26 +47,6 @@ class CatalogViewController: UIViewController {
         return tabbar
     }()
     
-    private var products: [Product] = [] {
-        didSet {
-            sushiProducts = products.filter({ (product) -> Bool in
-                product.category == .sushi
-            })
-            
-            pizzaProducts = products.filter({ (product) -> Bool in
-                product.category == .pizza
-            })
-            
-            drinksProducts = products.filter({ (product) -> Bool in
-                product.category == .drinks
-            })
-        }
-    }
-    
-    private var sushiProducts: [Product] = []
-    private var pizzaProducts: [Product] = []
-    private var drinksProducts: [Product] = []
-    
     private var navigationRightItem: UIBarButtonItem!
     
     // MARK: - Lifecycle methods
@@ -75,53 +55,11 @@ class CatalogViewController: UIViewController {
         super.viewDidLoad()
         configurator.configure(with: self)
         presenter.configureView()
-        
-        tableView.delegate = self
-        tableView.dataSource = self
-        tabBar.delegate = self
-
-        Cart.shared().summaryPrice.subscribe(onNext: { (price) in
-            self.navigationRightItem.title = Cart.shared().getStringValue()
-        }).disposed(by: disposeBag)
-        
-        view.backgroundColor = #colorLiteral(red: 0.4949728251, green: 0.3844715953, blue: 1, alpha: 1)
-        title = "Каталог"
     }
     
     override func viewWillAppear(_ animated: Bool) {
         tableView.reloadData()
     }
-    
-    // MARK: - Interactor handlers
-    
-    func scrollTableViewToSushi() {
-        guard sushiProducts.count > 0 else { return }
-        let indexPath = IndexPath(row: 0, section: 0)
-        tableView.scrollToRow(at: indexPath, at: .top, animated: true)
-    }
-    
-    func scrollTableViewToPizza() {
-        guard pizzaProducts.count > 0 else { return }
-        let indexPath = IndexPath(row: 0, section: 1)
-        tableView.scrollToRow(at: indexPath, at: .top, animated: true)
-    }
-    
-    func scrollTableViewToDrinks() {
-        guard drinksProducts.count > 0 else { return }
-        let indexPath = IndexPath(row: 0, section: 2)
-        tableView.scrollToRow(at: indexPath, at: .top, animated: true)
-    }
-    
-    @objc func goToCartViewController() {
-        let vc = CartViewController()
-        navigationController?.pushViewController(vc, animated: true)
-    }
-    
-}
-
-// MARK: - CatalogViewProtocol methods
-
-extension CatalogViewController: CatalogViewProtocol {
     
     func setupTableViewAndTabBar() {
         view.addSubview(tableView)
@@ -145,23 +83,43 @@ extension CatalogViewController: CatalogViewProtocol {
     }
     
     func setupNavigationBar() {
-        navigationRightItem = UIBarButtonItem(title: Cart.shared().getStringValue(), style: .plain, target: self, action: #selector(goToCartViewController))
+        navigationRightItem = UIBarButtonItem(title: Cart.shared().getStringValue(), style: .plain, target: self, action: #selector(navigationRightItemTapped))
         navigationRightItem.tintColor = .white
         navigationItem.rightBarButtonItem = navigationRightItem
         navigationController?.navigationBar.tintColor = .white
     }
     
-    func reloadTableViewData(with products: [Product]) {
-        self.products = products
-        if sushiProducts.count > 0 {
-            tabBar.selectedItem = tabBar.items?[0]
-        } else if pizzaProducts.count > 0 {
-            tabBar.selectedItem = tabBar.items?[1]
-        } else if drinksProducts.count > 0 {
-            tabBar.selectedItem = tabBar.items?[2]
-        }
+}
+
+// MARK: - CatalogViewProtocol methods
+
+extension CatalogViewController: CatalogViewProtocol {
+    func setupView() {
+        view.backgroundColor = #colorLiteral(red: 0.4949728251, green: 0.3844715953, blue: 1, alpha: 1)
+        title = "Каталог"
         
+        tableView.delegate = self
+        tableView.dataSource = self
+        tabBar.delegate = self
+        
+        setupNavigationBar()
+        setupTableViewAndTabBar()
+        
+        Cart.shared().summaryPrice.subscribe(onNext: { (_) in
+            self.navigationRightItem.title = Cart.shared().getStringValue()
+        }).disposed(by: disposeBag)
+    }
+    
+    func reloadTableViewData() {
         tableView.reloadData()
+    }
+    
+    func scrollTo(indexPath: IndexPath) {
+        tableView.scrollToRow(at: indexPath, at: .top, animated: true)
+    }
+    
+    @objc func navigationRightItemTapped() {
+        presenter.navigationRightItemTapped()
     }
 }
 
@@ -169,40 +127,18 @@ extension CatalogViewController: CatalogViewProtocol {
 
 extension CatalogViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch section {
-        case 0:
-            return sushiProducts.count
-        case 1:
-            return pizzaProducts.count
-        case 2:
-            return drinksProducts.count
-        default:
-            return 0
-        }
+        return presenter.productsCountFor(section: section)
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 3
+        return presenter.countOfSections()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        var product: Product = Product(id: -1, options: [], imageURL: "", title: "", price: 0, description: "", category: .drinks)
-        
-        switch indexPath.section {
-        case 0:
-            product = sushiProducts[indexPath.row]
-        case 1:
-            product = pizzaProducts[indexPath.row]
-        case 2:
-            product = drinksProducts[indexPath.row]
-        default:
-            break
-        }
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: "CatalogCell", for: indexPath) as! CatalogTableViewCell
+        let product = presenter.productForIndexPath(indexPath: indexPath)
         cell.setupCell(with: product)
         return cell
-        
     }
     
 }
@@ -223,21 +159,6 @@ extension CatalogViewController: UIScrollViewDelegate {
 extension CatalogViewController: UITabBarDelegate {
     func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
         let index = item.tag
-        switch index {
-        case 0:
-            scrollTableViewToSushi()
-        case 1:
-            scrollTableViewToPizza()
-        case 2:
-            scrollTableViewToDrinks()
-        default:
-            break
-        }
+        presenter.tabbarDidSelectItem(index: index)
     }
 }
-
-//extension CatalogViewController: CartDelegate {
-//    func updateCartInformation() {
-//        navigationRightItem.title = Cart.shared().getStringValue()
-//    }
-//}

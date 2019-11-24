@@ -1,5 +1,5 @@
 //
-//  CatalogEntities.swift
+//  Entities.swift
 //  TestShop
 //
 //  Created by Egor on 21.11.2019.

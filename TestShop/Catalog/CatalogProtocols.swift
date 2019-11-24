@@ -10,31 +10,35 @@ import Foundation
 import UIKit
 
 protocol CatalogViewProtocol: class {
-    func setupTableViewAndTabBar()
-    func reloadTableViewData(with products: [Product])
-    func setupNavigationBar()
+    func setupView()
+    func reloadTableViewData()
+    func scrollTo(indexPath: IndexPath)
 }
 
 protocol CatalogPresenterProtocol: class {
     var router: CatalogRouterProtocol! { set get }
     func configureView()
-    func updateTableViewData(with products: [Product])
+    func updateTableViewData()
+    func navigationRightItemTapped()
+    func tabbarDidSelectItem(index: Int)
+    func scrollTableViewTo(indexPath: IndexPath)
+    func productsCountFor(section: Int) -> Int
+    func countOfSections() -> Int
+    func productForIndexPath(indexPath: IndexPath) -> Product
 }
 
 protocol CatalogInteractorProtocol: class {
-    var urlRatesSource: String { get }
-    func openUrl(with urlString: String)
     func getProducts()
+    func tabbarDidSelectItem(index: Int)
+    func productsCountFor(section: Int) -> Int
+    func countOfSections() -> Int
+    func productForIndexPath(indexPath: IndexPath) -> Product
 }
 
 protocol CatalogRouterProtocol: class {
-    func closeCurrentViewController()
+    func goToCartVC()
 }
 
 protocol CatalogConfiguratorProtocol: class {
     func configure(with viewController: CatalogViewController)
-}
-
-protocol CartDelegate {
-    func updateCartInformation()
 }

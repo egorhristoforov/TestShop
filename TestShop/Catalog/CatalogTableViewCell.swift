@@ -19,11 +19,15 @@ class CatalogTableViewCell: UITableViewCell {
     private var isAddedToCart: Bool = false {
         didSet {
             if isAddedToCart {
-                addToCartButton.backgroundColor = UIColor.red.withAlphaComponent(0.3)
                 addToCartButton.setTitle("УБРАТЬ ИЗ КОРЗИНЫ", for: .normal)
+                UIView.animate(withDuration: 0.2) {
+                    self.addToCartButton.backgroundColor = UIColor.red.withAlphaComponent(0.3)
+                }
             } else {
-                addToCartButton.backgroundColor = UIColor.white.withAlphaComponent(0.3)
                 addToCartButton.setTitle("ДОБАВИТЬ В КОРЗИНУ", for: .normal)
+                UIView.animate(withDuration: 0.2) {
+                    self.addToCartButton.backgroundColor = UIColor.white.withAlphaComponent(0.3)
+                }
             }
         }
     }

@@ -38,7 +38,7 @@ class DataLoader {
         }
         task.resume()
         
-        /* Получение товара с сервера
+        /* Получение товаров с сервера
         let headers = ["Content-Type": "application/json"]
         Alamofire.request(SERVER_URL + REQUEST_PRODUCTS,
                           method: .post,

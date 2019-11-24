@@ -9,10 +9,6 @@
 import Foundation
 
 class CatalogRouter: CatalogRouterProtocol {
-    func configure(with viewController: CatalogViewController) {
-        //
-    }
-    
     
     weak var viewController: CatalogViewController!
     
@@ -20,7 +16,9 @@ class CatalogRouter: CatalogRouterProtocol {
         self.viewController = viewController
     }
     
-    func closeCurrentViewController() {
-        viewController.dismiss(animated: true, completion: nil)
+    // MARK: - CatalogRouterProtocol methods
+    
+    func goToCartVC() {
+        viewController.navigationController?.pushViewController(CartViewController(), animated: true)
     }
 }

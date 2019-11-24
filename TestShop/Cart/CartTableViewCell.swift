@@ -64,9 +64,14 @@ class CartTableViewCell: UITableViewCell {
         
         var summaryPrice = product.selectedPrice
         var allOptions = ""
-        for option in product.selectedOptions {
+        if let option = product.selectedOptions.first {
+            allOptions = "- \(option.type.getStringValue())"
+        }
+        for (index, option) in product.selectedOptions.enumerated() {
             summaryPrice += option.price
-            allOptions += "- \(option.type.getStringValue())\n"
+            if index != 0 {
+                allOptions += "\n- \(option.type.getStringValue())"
+            }
         }
         productPrice.text = "\(summaryPrice)₽"
         productOptionsLabel.text = allOptions
