@@ -11,14 +11,14 @@ import UIKit
 
 protocol CatalogViewProtocol: class {
     func setupView()
-    func reloadTableViewData()
+    func reloadTableViewData(with tabs: [Categories])
     func scrollTo(indexPath: IndexPath)
 }
 
 protocol CatalogPresenterProtocol: class {
     var router: CatalogRouterProtocol! { set get }
     func configureView()
-    func updateTableViewData()
+    func updateTableViewData(with tabs: [Categories])
     func navigationRightItemTapped()
     func tabbarDidSelectItem(index: Int)
     func scrollTableViewTo(indexPath: IndexPath)

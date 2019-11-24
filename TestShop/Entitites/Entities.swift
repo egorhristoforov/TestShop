@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import RxSwift
 import RxCocoa
 
@@ -43,6 +44,17 @@ enum Categories: String, Decodable {
             return "Пицца"
         case .sushi:
             return "Суши"
+        }
+    }
+    
+    func getImage() -> UIImage? {
+        switch self {
+        case .drinks:
+            return UIImage(named: "DrinksIcon")
+        case .pizza:
+            return UIImage(named: "PizzaIcon")
+        case .sushi:
+            return UIImage(named: "SushiIcon")
         }
     }
 }

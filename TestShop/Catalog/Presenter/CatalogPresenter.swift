@@ -26,8 +26,8 @@ class CatalogPresenter: CatalogPresenterProtocol {
         interactor.getProducts()
     }
     
-    func updateTableViewData() {
-        view.reloadTableViewData()
+    func updateTableViewData(with tabs: [Categories]) {
+        view.reloadTableViewData(with: tabs)
     }
     
     func navigationRightItemTapped() {

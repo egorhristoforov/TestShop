@@ -89,6 +89,15 @@ class CatalogViewController: UIViewController {
         navigationController?.navigationBar.tintColor = .white
     }
     
+    func updateTabbar(with tabs: [Categories]) {
+        tabBar.items = []
+        for (index, tab) in tabs.enumerated() {
+            tabBar.items?.append(UITabBarItem(title: tab.getStringValue(), image: tab.getImage(), tag: index))
+        }
+        
+        tabBar.selectedItem = tabBar.items?[0]
+    }
+    
 }
 
 // MARK: - CatalogViewProtocol methods
@@ -110,7 +119,8 @@ extension CatalogViewController: CatalogViewProtocol {
         }).disposed(by: disposeBag)
     }
     
-    func reloadTableViewData() {
+    func reloadTableViewData(with tabs: [Categories]) {
+        updateTabbar(with: tabs)
         tableView.reloadData()
     }
     

@@ -35,63 +35,60 @@ class CatalogInteractor: CatalogInteractorProtocol {
     var pizzaProducts: [Product] = []
     var drinksProducts: [Product] = []
     
+    private var availableCategories: [Categories] = []
+    
     // MARK: - CatalogInteractorProtocol methods
     
     func getProducts() {
         DataLoader.downloadProducts { (response) in
             self.products = response.products
-            self.presenter.updateTableViewData()
+            if self.sushiProducts.count > 0 {
+                self.availableCategories.append(.sushi)
+            }
+            
+            if self.pizzaProducts.count > 0 {
+                self.availableCategories.append(.pizza)
+            }
+            
+            if self.drinksProducts.count > 0 {
+                self.availableCategories.append(.drinks)
+            }
+            self.presenter.updateTableViewData(with: self.availableCategories)
         }
     }
     
     func tabbarDidSelectItem(index: Int) {
-        var indexPath: IndexPath
-        switch index {
-        case 0:
-            guard sushiProducts.count > 0 else { return }
-            indexPath = IndexPath(row: 0, section: 0)
-        case 1:
-            guard pizzaProducts.count > 0 else { return }
-            indexPath = IndexPath(row: 0, section: 1)
-        case 2:
-            guard drinksProducts.count > 0 else { return }
-            indexPath = IndexPath(row: 0, section: 2)
-        default:
-            return
-        }
-        
+        let indexPath = IndexPath(row: 0, section: index)
         presenter.scrollTableViewTo(indexPath: indexPath)
     }
     
     func productsCountFor(section: Int) -> Int {
-        switch section {
-        case 0:
+        let type = availableCategories[section]
+        switch type {
+        case .sushi:
             return sushiProducts.count
-        case 1:
+        case .pizza:
             return pizzaProducts.count
-        case 2:
+        case .drinks:
             return drinksProducts.count
-        default:
-            return 0
         }
     }
     
     func countOfSections() -> Int {
-        return 3
+        return availableCategories.count
     }
     
     func productForIndexPath(indexPath: IndexPath) -> Product {
         var product: Product = Product(id: -1, options: [], imageURL: "", title: "", price: 0, description: "", category: .drinks)
         
-        switch indexPath.section {
-        case 0:
+        let type = availableCategories[indexPath.section]
+        switch type {
+        case .sushi:
             product = sushiProducts[indexPath.row]
-        case 1:
+        case .pizza:
             product = pizzaProducts[indexPath.row]
-        case 2:
+        case .drinks:
             product = drinksProducts[indexPath.row]
-        default:
-            break
         }
         
         return product
