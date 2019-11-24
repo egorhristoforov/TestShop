@@ -105,16 +105,15 @@ class CartProduct {
 }
 
 class Cart {
-    var productsCount: Int = 0
-    var summaryPrice: Int = 0
-    var delegate: CartDelegate?
+    var productsCount = BehaviorRelay(value: 0)
+    var summaryPrice = BehaviorRelay(value: 0)
     
     func getStringValue() -> String {
-        if productsCount == 0 {
+        if productsCount.value == 0 {
             return "Корзина пустая"
         }
         
-        return "Корзина (\(productsCount)): \(summaryPrice) ₽"
+        return "Корзина (\(productsCount.value)): \(summaryPrice.value) ₽"
     }
     
     private static var uniqueInstance: Cart?
@@ -130,9 +129,8 @@ class Cart {
     
     func addProductToCart(product: Product) {
         selectedProducts.append(CartProduct(product: product))
-        productsCount += 1
-        summaryPrice += product.price
-        delegate?.updateCartInformation()
+        productsCount.accept(productsCount.value + 1)
+        summaryPrice.accept(summaryPrice.value + product.price)
     }
     
     func removeProductFromCart(product: Product) {
@@ -140,12 +138,11 @@ class Cart {
             p.selectedId == product.id
         }) {
             for option in selectedProducts[index].selectedOptions {
-                summaryPrice -= option.price
+                summaryPrice.accept(summaryPrice.value - option.price)
             }
             selectedProducts.remove(at: index)
-            productsCount -= 1
-            summaryPrice -= product.price
-            delegate?.updateCartInformation()
+            productsCount.accept(productsCount.value - 1)
+            summaryPrice.accept(summaryPrice.value - product.price)
         }
     }
     
@@ -154,12 +151,11 @@ class Cart {
             p.selectedId == product.selectedId
         }) {
             for option in selectedProducts[index].selectedOptions {
-                summaryPrice -= option.price
+                summaryPrice.accept(summaryPrice.value - option.price)
             }
             selectedProducts.remove(at: index)
-            productsCount -= 1
-            summaryPrice -= product.selectedPrice
-            delegate?.updateCartInformation()
+            productsCount.accept(productsCount.value - 1)
+            summaryPrice.accept(summaryPrice.value - product.selectedPrice)
         }
     }
     
@@ -168,17 +164,16 @@ class Cart {
             prod.selectedId == product.id
         }) {
             selectedProducts[index].addToSelectedOptions(option: option)
-            summaryPrice += option.price
+            summaryPrice.accept(summaryPrice.value + option.price)
         } else {
             addProductToCart(product: product)
             if let index = selectedProducts.firstIndex(where: { (prod) -> Bool in
                 prod.selectedId == product.id
             }) {
                 selectedProducts[index].addToSelectedOptions(option: option)
-                summaryPrice += option.price
+                summaryPrice.accept(summaryPrice.value + option.price)
             }
         }
-        delegate?.updateCartInformation()
     }
     
     func removeExtraOption(for product: Product, option: Option) {
@@ -187,10 +182,9 @@ class Cart {
         }) {
             if selectedProducts[index].isOptionAdded(option: option) {
                 selectedProducts[index].removeOptionFromSelected(option: option)
-                summaryPrice -= option.price
+                summaryPrice.accept(summaryPrice.value - option.price)
             }
         }
-        delegate?.updateCartInformation()
     }
     
     func getProducts() -> [CartProduct] {

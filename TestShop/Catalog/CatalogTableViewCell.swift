@@ -101,15 +101,6 @@ class CatalogTableViewCell: UITableViewCell {
         for (index, option) in options.enumerated() {
             let switchView = UISwitch()
             switchView.tag = index
-            switchView.rx
-                .isOn
-                .throttle(RxTimeInterval.milliseconds(500), scheduler: MainScheduler.instance)
-                .distinctUntilChanged()
-                .subscribe { (value) in
-                    guard let value = value.element else { return }
-                    self.addOptionToCartToggle(value: value, index: switchView.tag)
-                }
-                .disposed(by: disposeBag)
             
             switches.append(switchView)
             
@@ -158,6 +149,10 @@ class CatalogTableViewCell: UITableViewCell {
         productOptions = product.options
         
         setProductOptions(with: productOptions)
+        
+        for switchView in switches {
+            switchView.addTarget(self, action: #selector(addOptionToCartToggle(sender:)), for: .valueChanged)
+        }
 
         fetchImage(url_img: product.imageURL, for: productImage)
     }
@@ -175,8 +170,9 @@ class CatalogTableViewCell: UITableViewCell {
         isAddedToCart = !isAddedToCart
     }
     
-    func addOptionToCartToggle(value: Bool, index: Int) {
-        if value {
+    @objc func addOptionToCartToggle(sender: UISwitch) {
+        let index = sender.tag
+        if sender.isOn {
             Cart.shared().addExtraOption(for: product, option: productOptions[index])
             if !isAddedToCart {
                 isAddedToCart = true

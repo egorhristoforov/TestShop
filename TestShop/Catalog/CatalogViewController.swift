@@ -7,10 +7,13 @@
 //
 
 import UIKit
+import RxSwift
 
 class CatalogViewController: UIViewController {
     var presenter: CatalogPresenterProtocol!
     let configurator: CatalogConfiguratorProtocol = CatalogConfigurator()
+    
+    let disposeBag = DisposeBag()
     
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -76,7 +79,10 @@ class CatalogViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tabBar.delegate = self
-        Cart.shared().delegate = self
+
+        Cart.shared().summaryPrice.subscribe(onNext: { (price) in
+            self.navigationRightItem.title = Cart.shared().getStringValue()
+        }).disposed(by: disposeBag)
         
         view.backgroundColor = #colorLiteral(red: 0.4949728251, green: 0.3844715953, blue: 1, alpha: 1)
         title = "Каталог"
@@ -230,8 +236,8 @@ extension CatalogViewController: UITabBarDelegate {
     }
 }
 
-extension CatalogViewController: CartDelegate {
-    func updateCartInformation() {
-        navigationRightItem.title = Cart.shared().getStringValue()
-    }
-}
+//extension CatalogViewController: CartDelegate {
+//    func updateCartInformation() {
+//        navigationRightItem.title = Cart.shared().getStringValue()
+//    }
+//}
