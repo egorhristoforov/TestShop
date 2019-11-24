@@ -90,6 +90,16 @@ class CartProduct {
     var selectedPrice: Int
     var selectedDescription: String
     var selectedCategory: ProductCategory
+    var portionsCount: Int {
+        didSet {
+            let oldPrice = oldValue * priceWithOptions
+            let newPrice = portionsCount * priceWithOptions
+            
+            Cart.shared().productsCount.accept(Cart.shared().productsCount.value + (portionsCount - oldValue))
+            Cart.shared().summaryPrice.accept(Cart.shared().summaryPrice.value + (newPrice - oldPrice))
+        }
+    }
+    var priceWithOptions: Int
     
     init(product: Product) {
         selectedId = product.id
@@ -99,10 +109,13 @@ class CartProduct {
         selectedPrice = product.price
         selectedDescription = product.description
         selectedCategory = product.category
+        portionsCount = 1
+        priceWithOptions = product.price
     }
     
     func addToSelectedOptions(option: Option) {
         selectedOptions.append(option)
+        priceWithOptions += option.price
     }
     
     func removeOptionFromSelected(option: Option) {
@@ -110,6 +123,7 @@ class CartProduct {
             opt.type == option.type
         }) {
             selectedOptions.remove(at: index)
+            priceWithOptions -= option.price
         }
     }
     
@@ -153,12 +167,9 @@ class Cart {
         if let index = selectedProducts.firstIndex(where: { (p) -> Bool in
             p.selectedId == product.id
         }) {
-            for option in selectedProducts[index].selectedOptions {
-                summaryPrice.accept(summaryPrice.value - option.price)
-            }
+            productsCount.accept(productsCount.value - selectedProducts[index].portionsCount)
+            summaryPrice.accept(summaryPrice.value - (selectedProducts[index].portionsCount *  selectedProducts[index].priceWithOptions))
             selectedProducts.remove(at: index)
-            productsCount.accept(productsCount.value - 1)
-            summaryPrice.accept(summaryPrice.value - product.price)
         }
     }
     
@@ -166,12 +177,9 @@ class Cart {
         if let index = selectedProducts.firstIndex(where: { (p) -> Bool in
             p.selectedId == product.selectedId
         }) {
-            for option in selectedProducts[index].selectedOptions {
-                summaryPrice.accept(summaryPrice.value - option.price)
-            }
             selectedProducts.remove(at: index)
-            productsCount.accept(productsCount.value - 1)
-            summaryPrice.accept(summaryPrice.value - product.selectedPrice)
+            productsCount.accept(productsCount.value - product.portionsCount)
+            summaryPrice.accept(summaryPrice.value - product.portionsCount * product.priceWithOptions)
         }
     }
     
@@ -180,7 +188,7 @@ class Cart {
             prod.selectedId == product.id
         }) {
             selectedProducts[index].addToSelectedOptions(option: option)
-            summaryPrice.accept(summaryPrice.value + option.price)
+            summaryPrice.accept(summaryPrice.value + (selectedProducts[index].portionsCount * option.price))
         } else {
             addProductToCart(product: product)
             if let index = selectedProducts.firstIndex(where: { (prod) -> Bool in
@@ -198,7 +206,7 @@ class Cart {
         }) {
             if selectedProducts[index].isOptionAdded(option: option) {
                 selectedProducts[index].removeOptionFromSelected(option: option)
-                summaryPrice.accept(summaryPrice.value - option.price)
+                summaryPrice.accept(summaryPrice.value - (selectedProducts[index].portionsCount * option.price))
             }
         }
     }
@@ -221,6 +229,14 @@ class Cart {
         }
         
         return false
+    }
+    
+    func setPortionsCountOfProduct(product: CartProduct, count: Int) {
+        if let index = selectedProducts.firstIndex(where: { (prod) -> Bool in
+            prod.selectedId == product.selectedId
+        }) {
+            selectedProducts[index].portionsCount = count
+        }
     }
     
     private var selectedProducts: [CartProduct] = []

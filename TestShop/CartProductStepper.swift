@@ -8,6 +8,11 @@
 
 import UIKit
 
+enum EventType {
+    case increase
+    case decrease
+}
+
 /**
  Кастомный UIStepper
  */
@@ -70,9 +75,16 @@ class CartProductStepper: UIView {
         }
     }
     
+    private var handler: (_:EventType) -> Void = {event in }
+    
     private var stepperValue: Int = 0 {
         didSet {
             valueLabel.text = "\(value)"
+            if stepperValue > oldValue {
+                handler(.increase)
+            } else if stepperValue < oldValue {
+                handler(.decrease)
+            }
         }
     }
     /**
@@ -81,6 +93,9 @@ class CartProductStepper: UIView {
     var value: Int {
         get {
             return stepperValue
+        }
+        set {
+            stepperValue = newValue
         }
     }
     
@@ -92,6 +107,10 @@ class CartProductStepper: UIView {
     @objc private func increaseValue() {
         guard value < maximumValue || maximumValue == -1 else { return }
         stepperValue += 1
+    }
+    
+    func addHandler(handler: @escaping (_ event: EventType) -> Void) {
+        self.handler = handler
     }
     
     override init(frame: CGRect) {

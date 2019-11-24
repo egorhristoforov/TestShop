@@ -7,11 +7,14 @@
 //
 
 import UIKit
+import RxSwift
 
 class CartViewController: UIViewController {
     
     var presenter: CartPresenterProtocol!
     let configurator: CartConfiguratorProtocol = CartConfigurator()
+    
+    let disposeBag = DisposeBag()
     
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -26,6 +29,17 @@ class CartViewController: UIViewController {
         
         return tableView
     }()
+    
+    private let orderButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Оформить заказ", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .bold)
+        button.backgroundColor = UIColor.white.withAlphaComponent(0.3)
+        
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        return button
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,10 +49,18 @@ class CartViewController: UIViewController {
     
     func setupConstraints() {
         view.addSubview(tableView)
+        view.addSubview(orderButton)
+        
         tableView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        tableView.bottomAnchor.constraint(equalTo: orderButton.topAnchor, constant: -10).isActive = true
+        
+        orderButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        orderButton.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 10).isActive = true
+        orderButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10).isActive = true
+        orderButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10).isActive = true
+        orderButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20).isActive = true
     }
 
 }
@@ -51,6 +73,18 @@ extension CartViewController: CartViewProtocol {
         tableView.dataSource = self
         
         setupConstraints()
+        
+        if Cart.shared().productsCount.value == 0 {
+            orderButton.setTitle("Корзина пустая", for: .normal)
+        }
+        
+        Cart.shared().summaryPrice.subscribe(onNext: { (price) in
+            if price > 0 {
+                self.orderButton.setTitle("Оформить заказ: \(price)₽", for: .normal)
+            } else {
+                self.orderButton.setTitle("Корзина пустая", for: .normal)
+            }
+            }).disposed(by: disposeBag)
     }
     
     func reloadTableViewData() {

@@ -10,6 +10,8 @@ import UIKit
 
 class CartTableViewCell: UITableViewCell {
     
+    private var product: CartProduct!
+    
     private let cellBackroundView: UIView = {
         let view = UIView()
         view.backgroundColor = #colorLiteral(red: 0.9852560163, green: 0.9898150563, blue: 1, alpha: 0.2)
@@ -60,9 +62,9 @@ class CartTableViewCell: UITableViewCell {
     }()
     
     func setupCell(with product: CartProduct) {
+        self.product = product
         productTitle.text = product.selectedTitle
         
-        var summaryPrice = product.selectedPrice
         /**
         Формирование текст для выбранных опций
          */
@@ -71,12 +73,12 @@ class CartTableViewCell: UITableViewCell {
             allOptions = "- \(option.type.getStringValue())"
         }
         for (index, option) in product.selectedOptions.enumerated() {
-            summaryPrice += option.price
             if index != 0 {
                 allOptions += "\n- \(option.type.getStringValue())"
             }
         }
-        productPrice.text = "\(summaryPrice)₽"
+        productStepper.value = product.portionsCount
+        productPrice.text = "\(product.priceWithOptions * product.portionsCount)₽"
         productOptionsLabel.text = allOptions
     }
     
@@ -118,6 +120,10 @@ class CartTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = #colorLiteral(red: 0.4949728251, green: 0.3844715953, blue: 1, alpha: 1)
         setupConstraints()
+        productStepper.addHandler { action in
+            self.product.portionsCount = self.productStepper.value
+            self.productPrice.text = "\(self.product.priceWithOptions * self.product.portionsCount)₽"
+        }
     }
     
     required init?(coder: NSCoder) {
