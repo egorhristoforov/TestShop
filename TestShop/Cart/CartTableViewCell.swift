@@ -69,16 +69,16 @@ class CartTableViewCell: UITableViewCell {
         Формирование текст для выбранных опций
          */
         var allOptions = ""
-        if let option = product.selectedOptions.first {
+        if let option = product.selectedOptions.value.first {
             allOptions = "- \(option.type.getStringValue())"
         }
-        for (index, option) in product.selectedOptions.enumerated() {
+        for (index, option) in product.selectedOptions.value.enumerated() {
             if index != 0 {
                 allOptions += "\n- \(option.type.getStringValue())"
             }
         }
-        productStepper.value = product.portionsCount
-        productPrice.text = "\(product.priceWithOptions * product.portionsCount)₽"
+        productStepper.value = product.portionsCount.value
+        productPrice.text = "\(product.summaryProductPrice.value)₽"
         productOptionsLabel.text = allOptions
     }
     
@@ -121,8 +121,8 @@ class CartTableViewCell: UITableViewCell {
         backgroundColor = #colorLiteral(red: 0.4949728251, green: 0.3844715953, blue: 1, alpha: 1)
         setupConstraints()
         productStepper.addHandler {
-            self.product.portionsCount = self.productStepper.value
-            self.productPrice.text = "\(self.product.priceWithOptions * self.product.portionsCount)₽"
+            self.product.portionsCount.accept(self.productStepper.value)
+            self.productPrice.text = "\(self.product.summaryProductPrice.value)₽"
         }
     }
     

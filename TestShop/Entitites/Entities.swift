@@ -83,58 +83,74 @@ struct ResponseProducts: Decodable {
 }
 
 class CartProduct {
+    private let disposeBag = DisposeBag()
+    
     var selectedId: Int
-    var selectedOptions: [Option]
+    var selectedOptions: BehaviorRelay<[Option]> = BehaviorRelay(value: [])
     var selectedImageURL: String
     var selectedTitle: String
     var selectedPrice: Int
     var selectedDescription: String
     var selectedCategory: ProductCategory
-    var portionsCount: Int {
-        didSet {
-            let oldPrice = oldValue * priceWithOptions
-            let newPrice = portionsCount * priceWithOptions
-            
-            Cart.shared().productsCount.accept(Cart.shared().productsCount.value + (portionsCount - oldValue))
-            Cart.shared().summaryPrice.accept(Cart.shared().summaryPrice.value + (newPrice - oldPrice))
-        }
-    }
-    var priceWithOptions: Int
+    var portionsCount: BehaviorRelay<Int> = BehaviorRelay(value: 0)
+    var summaryProductPrice: BehaviorRelay<Int> = BehaviorRelay(value: 0)
     
     init(product: Product) {
         selectedId = product.id
-        selectedOptions = []
+        selectedOptions.accept([])
         selectedImageURL = product.imageURL
         selectedTitle = product.title
         selectedPrice = product.price
         selectedDescription = product.description
         selectedCategory = product.category
-        portionsCount = 1
-        priceWithOptions = product.price
+        portionsCount.accept(1)
+        summaryProductPrice.accept(product.price)
+        
+        selectedOptions.subscribe(onNext: { (options) in
+            var price = self.selectedPrice
+            for option in options {
+                price += option.price
+            }
+            price = price * self.portionsCount.value
+            
+            self.summaryProductPrice.accept(price)
+            }).disposed(by: disposeBag)
+        
+        portionsCount.subscribe(onNext: { (count) in
+            var price = self.selectedPrice
+            for option in self.selectedOptions.value {
+                price += option.price
+            }
+            price = price * count
+            
+            self.summaryProductPrice.accept(price)
+            }).disposed(by: disposeBag)
     }
     
     func addToSelectedOptions(option: Option) {
-        selectedOptions.append(option)
-        priceWithOptions += option.price
+        selectedOptions.accept(selectedOptions.value + [option])
     }
     
     func removeOptionFromSelected(option: Option) {
-        if let index = selectedOptions.firstIndex(where: { (opt) -> Bool in
+        if let index = selectedOptions.value.firstIndex(where: { (opt) -> Bool in
             opt.type == option.type
         }) {
-            selectedOptions.remove(at: index)
-            priceWithOptions -= option.price
+            var allOptions = selectedOptions.value
+            allOptions.remove(at: index)
+            selectedOptions.accept(allOptions)
         }
     }
     
     func isOptionAdded(option: Option) -> Bool {
-        return selectedOptions.contains { (opt) -> Bool in
+        return selectedOptions.value.contains { (opt) -> Bool in
             opt.type == option.type
         }
     }
 }
 
 class Cart {
+    private var disposeBag = DisposeBag()
+    
     var productsCount = BehaviorRelay(value: 0)
     var summaryPrice = BehaviorRelay(value: 0)
     
@@ -158,17 +174,26 @@ class Cart {
     }
     
     func addProductToCart(product: Product) {
-        selectedProducts.append(CartProduct(product: product))
-        productsCount.accept(productsCount.value + 1)
-        summaryPrice.accept(summaryPrice.value + product.price)
+        let cartProduct = CartProduct(product: product)
+        selectedProducts.append(cartProduct)
+        cartProduct.summaryProductPrice.subscribe(onNext: { (_) in
+            var price = 0
+            var count = 0
+            for prod in self.selectedProducts {
+                price += prod.summaryProductPrice.value
+                count += prod.portionsCount.value
+            }
+            self.productsCount.accept(count)
+            self.summaryPrice.accept(price)
+            }).disposed(by: disposeBag)
     }
     
     func removeProductFromCart(product: Product) {
         if let index = selectedProducts.firstIndex(where: { (p) -> Bool in
             p.selectedId == product.id
         }) {
-            productsCount.accept(productsCount.value - selectedProducts[index].portionsCount)
-            summaryPrice.accept(summaryPrice.value - (selectedProducts[index].portionsCount *  selectedProducts[index].priceWithOptions))
+            productsCount.accept(productsCount.value - selectedProducts[index].portionsCount.value)
+            summaryPrice.accept(summaryPrice.value - selectedProducts[index].summaryProductPrice.value)
             selectedProducts.remove(at: index)
         }
     }
@@ -177,9 +202,9 @@ class Cart {
         if let index = selectedProducts.firstIndex(where: { (p) -> Bool in
             p.selectedId == product.selectedId
         }) {
+            productsCount.accept(productsCount.value - product.portionsCount.value)
+            summaryPrice.accept(summaryPrice.value - product.summaryProductPrice.value)
             selectedProducts.remove(at: index)
-            productsCount.accept(productsCount.value - product.portionsCount)
-            summaryPrice.accept(summaryPrice.value - product.portionsCount * product.priceWithOptions)
         }
     }
     
@@ -188,14 +213,12 @@ class Cart {
             prod.selectedId == product.id
         }) {
             selectedProducts[index].addToSelectedOptions(option: option)
-            summaryPrice.accept(summaryPrice.value + (selectedProducts[index].portionsCount * option.price))
         } else {
             addProductToCart(product: product)
             if let index = selectedProducts.firstIndex(where: { (prod) -> Bool in
                 prod.selectedId == product.id
             }) {
                 selectedProducts[index].addToSelectedOptions(option: option)
-                summaryPrice.accept(summaryPrice.value + option.price)
             }
         }
     }
@@ -206,7 +229,6 @@ class Cart {
         }) {
             if selectedProducts[index].isOptionAdded(option: option) {
                 selectedProducts[index].removeOptionFromSelected(option: option)
-                summaryPrice.accept(summaryPrice.value - (selectedProducts[index].portionsCount * option.price))
             }
         }
     }
@@ -229,14 +251,6 @@ class Cart {
         }
         
         return false
-    }
-    
-    func setPortionsCountOfProduct(product: CartProduct, count: Int) {
-        if let index = selectedProducts.firstIndex(where: { (prod) -> Bool in
-            prod.selectedId == product.selectedId
-        }) {
-            selectedProducts[index].portionsCount = count
-        }
     }
     
     private var selectedProducts: [CartProduct] = []
