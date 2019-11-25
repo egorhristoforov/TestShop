@@ -21,7 +21,7 @@ class CatalogTableViewCell: UITableViewCell {
             if isAddedToCart {
                 addToCartButton.setTitle("УБРАТЬ ИЗ КОРЗИНЫ", for: .normal)
                 UIView.animate(withDuration: 0.2) {
-                    self.addToCartButton.backgroundColor = UIColor.red.withAlphaComponent(0.3)
+                    self.addToCartButton.backgroundColor = #colorLiteral(red: 0.4949728251, green: 0.3844715953, blue: 1, alpha: 1).withAlphaComponent(0.3)
                 }
             } else {
                 addToCartButton.setTitle("ДОБАВИТЬ В КОРЗИНУ", for: .normal)
